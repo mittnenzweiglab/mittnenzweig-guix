@@ -10,12 +10,12 @@
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages cpp)
-  #:use-module (gnu packages crates-io)
   #:use-module (gnu packages crypto)
   #:use-module (gnu packages databases)
   #:use-module (gnu packages digest)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages geo)
+  #:use-module (gnu packages graph)
   #:use-module (gnu packages graphviz)
   #:use-module (gnu packages image)
   #:use-module (gnu packages image-processing)
@@ -56,20 +56,9 @@
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject))
 
-(define-public python-hmmlearn
+(define-public python-hmmlearn-patched
   (package
-    (name "python-hmmlearn")
-    (version "0.3.3")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "hmmlearn" version))
-       (sha256
-        (base32
-         "1v24rkqjjf67w2rys25qxa3vk30bf23m7zn1ilihqzi5qp25sg0x"))))
-    (properties
-     '((updater-extra-native-inputs . ("pybind11" "python-setuptools-scm"))))
-    (build-system pyproject-build-system)
+    (inherit python-hmmlearn)
     (arguments
      (list
       #:test-flags
@@ -83,24 +72,9 @@
              (setenv "LOKY_MAX_CPU_COUNT" "1")))
          (add-before 'check 'build-extensions
            (lambda _
-             (invoke "python" "setup.py" "build_ext" "--inplace"))))))
-    (propagated-inputs
-     (list python-numpy python-scikit-learn python-scipy))
-    (native-inputs
-     (list pybind11
-           python-pytest
-           python-setuptools
-           python-setuptools-scm
-           python-wheel
-           util-linux)) ;for lscpu
-    (home-page "https://github.com/hmmlearn/hmmlearn")
-    (synopsis "Hidden Markov Models with scikit-learn like API")
-    (description
-     "Hmmlearn is a set of algorithms for unsupervised learning and inference
-of Hidden Markov Models.")
-    (license license:bsd-3)))
+             (invoke "python" "setup.py" "build_ext" "--inplace"))))))))
 
-(define-public macs-3
+(define-public macs-3-patched
   (package
     (name "macs")
     (version "3.0.2")
@@ -119,7 +93,7 @@ of Hidden Markov Models.")
     (build-system pyproject-build-system)
     (propagated-inputs
      (list python-cykhash
-           python-hmmlearn
+           python-hmmlearn-patched
            python-numpy
            python-scikit-learn
            python-scipy))
@@ -139,3 +113,4 @@ the significance of enriched ChIP regions and it improves the spatial
 resolution of binding sites through combining the information of both
 sequencing tag position and orientation.")
     (license license:bsd-3)))
+
